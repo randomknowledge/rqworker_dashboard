@@ -1,0 +1,9 @@
+{% extends 'rqworker_dashboard/base.html' %}
+
+{% block body %}
+	<div><a href="{% url rqworker_dashboard_tests_add test='normal' %}">Add normal test</a></div>
+	<div><a href="{% url rqworker_dashboard_tests_add test='fail' %}">Add failing test</a></div>
+	{% if test %}
+		<div>Added <strong>{{ test }}</strong> test</div>
+	{% endif %}
+{% endblock %}

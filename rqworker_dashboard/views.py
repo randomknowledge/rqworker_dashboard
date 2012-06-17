@@ -1,11 +1,11 @@
 import re
 from django.http import HttpResponse, Http404
-from django.views.generic.base import View
+from django.shortcuts import redirect
+from django.views.generic.base import View, TemplateView
 from . import setup_rq_connection
 from rq.job import Job
 from rq.worker import Worker, Queue
-from .safejob import unpickle
-from .safejob import SafeJob
+from . import enqueue, queueTestNormal, queueTestFail
 from .utils import serialize_queues
 from .utils import serialize_job
 from .utils import JSONSerializer
@@ -72,3 +72,23 @@ class ApiView(View):
         queue = Queue(queuename)
         jobs = [serialize_job(Job(id)) for id in queue.job_ids]
         return dict(name=queue.name, jobs=jobs)
+
+class TestsView(TemplateView):
+    template_name = 'rqworker_dashboard/tests.html'
+
+    def get(self, request, *args, **kwargs):
+        test = kwargs.get('test','')
+        if test:
+            if test == 'normal':
+                enqueue( queueTestNormal, 'normal test' )
+            else:
+                enqueue( queueTestFail, 'failing test' )
+            request.session['rqworker_dashboard_test'] = test
+            return redirect('rqworker_dashboard_tests')
+
+        context = {
+            'test': request.session.get('rqworker_dashboard_test'),
+        }
+
+        request.session['rqworker_dashboard_test'] = ''
+        return self.render_to_response(context)

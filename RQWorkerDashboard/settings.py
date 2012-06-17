@@ -105,7 +105,7 @@ ROOT_URLCONF = 'RQWorkerDashboard.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'RQWorkerDashboard.wsgi.application'
 
-TEMPLATE_DIRS = ('',)
+TEMPLATE_DIRS = ()
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -152,7 +152,7 @@ LOGGING = {
 
 
 RQ_DASHBOARD_SETTINGS = {
-    'db': 5,
+    'db': 8,
     'host': 'localhost',
     'port': 6379
 }
