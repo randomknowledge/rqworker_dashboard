@@ -1,0 +1,133 @@
+{% extends 'rqworker_dashboard/bootstrap.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="span6">
+		<div class="section">
+
+			<h1>Queues</h1>
+			<p class="fixed intro">This list below contains all the registered queues with the number of jobs currently in the queue.  Select a queue from above to view all jobs currently pending on the queue.</p>
+
+			<table id="queues" class="table table-bordered">
+				<thead>
+				<tr>
+					<th>Queue</th>
+					<th class="narrow">Jobs</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr data-role="loading-placeholder">
+					<td colspan="2">Loading...</td>
+				</tr>
+				</tbody>
+			</table>
+
+			<script name="queue-row" type="text/template">
+				<tr data-role="queue">
+					<td><i class="icon-inbox" style="opacity: .5;"></i> <a href="#">[[NAME]]</a></td>
+					<td class="narrow">[[COUNT]]</td>
+				</tr>
+			</script>
+
+			<script name="no-queues-row" type="text/template">
+				<tr>
+					<td colspan="3">No queues.</td>
+				</tr>
+			</script>
+
+		</div>
+	</div>
+
+	<div class="span6">
+		<div class="section">
+
+			<h1>Workers</h1>
+			<p class="fixed intro">This list below contains all the registered workers.</p>
+
+			<table id="workers" class="table table-bordered">
+				<thead>
+				<tr>
+					<th style="width:48px">State</th>
+					<th>Worker</th>
+					<th>Queues</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr data-role="loading-placeholder">
+					<td colspan="3">Loading...</td>
+				</tr>
+				</tbody>
+			</table>
+
+			<script name="worker-row" type="text/template">
+				<tr data-role="worker">
+					<td><i class="icon-success"></i></td>
+					<td>[[NAME]]</td>
+					<td>[[QUEUE_LIST]]</td>
+				</tr>
+			</script>
+
+			<script name="no-workers-row" type="text/template">
+				<tr>
+					<td colspan="3">No workers.</td>
+				</tr>
+			</script>
+
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="span12">
+		<div class="section">
+
+			<h1>Jobs on <strong class="failed">[[QUEUE-NAME]]</strong></h1>
+			<p class="intro">
+				<a href="#" id="empty-btn" class="btn btn-danger btn-small" style="float: right"><i class="icon-trash icon-white"></i> Empty</a>
+				<a href="#" id="compact-btn" class="btn btn-small" style="float: right; margin-right: 8px;"><i class="icon-resize-small"></i> Compact</a>
+				<a href="#" id="requeue-all-btn" class="btn btn-small" style="float: right; margin-right: 8px;"><i class="icon-retweet"></i> Requeue All</a>
+				This list below contains all the registered jobs on queue <strong>[[QUEUE-NAME]]</strong>, sorted by age (oldest on top).</p>
+
+			<table id="jobs" class="table table-bordered">
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th>Age</th>
+					<th class="narrow">Actions</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr data-role="loading-placeholder">
+					<td colspan="2">Loading...</td>
+				</tr>
+				</tbody>
+			</table>
+
+			<script name="job-row" type="text/template">
+				<tr data-role="job" data-job-id="[[JOB-ID]]">
+					<td>
+						<i class="icon-file" style="opacity: .5;"></i>
+						<span class="description">[[DESCRIPTION]]</span>
+						<span class="origin">from <strong>[[ORIGIN]]</strong></span>
+						<div class="job_id">[[JOB-ID]]</div>
+						<span class="end_date">Failed [[ENDED-AT]]</span>
+						<pre class="exc_info">[[EXEC-INFO]]</pre>
+					</td>
+					<td><span class="creation_date">[[CREATED-AT]]</span></td>
+					<td class="actions narrow">
+						<a href="#" data-role="requeue-job-btn" class="btn btn-small"><i class="icon-retweet"></i> Requeue</a>
+						<a href="#" data-role="cancel-job-btn" class="btn btn-small"><i class="icon-remove"></i> Cancel</a>
+					</td>
+				</tr>
+			</script>
+
+			<script name="no-jobs-row" type="text/template">
+				<tr>
+					<td colspan="3">No jobs.</td>
+				</tr>
+			</script>
+
+		</div>
+	</div>
+</div>
+{% endblock %}

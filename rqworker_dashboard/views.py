@@ -96,3 +96,7 @@ class TestsView(TemplateView):
         request.session['rqworker_dashboard_test'] = ''
         request.session['rqworker_dashboard_queue'] = ''
         return self.render_to_response(context)
+
+
+class DashboardView(TemplateView):
+    template_name = 'rqworker_dashboard/dashboard.html'
