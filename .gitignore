@@ -1,0 +1,27 @@
+# File types #
+##############
+*.pyc
+*.swo
+*.swp
+*.swn
+*.log
+*.pot
+
+# Directories #
+###############
+.idea/
+virtualenv/
+ext/
+biketracker/
+
+# Files #
+#########
+database.db
+
+# OS generated files #
+######################
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+*~
