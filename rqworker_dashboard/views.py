@@ -77,18 +77,22 @@ class TestsView(TemplateView):
     template_name = 'rqworker_dashboard/tests.html'
 
     def get(self, request, *args, **kwargs):
+        queue = kwargs.get('queue','default')
         test = kwargs.get('test','')
         if test:
             if test == 'normal':
-                enqueue( queueTestNormal, 'normal test' )
+                enqueue( queueTestNormal, 'normal test', queue=queue )
             else:
-                enqueue( queueTestFail, 'failing test' )
+                enqueue( queueTestFail, 'failing test', queue=queue )
             request.session['rqworker_dashboard_test'] = test
+            request.session['rqworker_dashboard_queue'] = queue
             return redirect('rqworker_dashboard_tests')
 
         context = {
             'test': request.session.get('rqworker_dashboard_test'),
+            'queue': request.session.get('rqworker_dashboard_queue'),
         }
 
         request.session['rqworker_dashboard_test'] = ''
+        request.session['rqworker_dashboard_queue'] = ''
         return self.render_to_response(context)
