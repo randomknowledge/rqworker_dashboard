@@ -16,9 +16,12 @@
 				</tr>
 				</thead>
 				<tbody>
-				<tr data-role="loading-placeholder">
-					<td colspan="2">Loading...</td>
+				{% for queue in queues %}
+				<tr data-role="queue"{% if queue.name == "failed" %} class="failed"{% endif %}>
+					<td><i class="icon-inbox" style="opacity: .5;"></i> <a href="#">{{ queue.name }}</a></td>
+					<td class="narrow">{{ queue.count }}</td>
 				</tr>
+				{% endfor %}
 				</tbody>
 			</table>
 
@@ -53,9 +56,13 @@
 				</tr>
 				</thead>
 				<tbody>
-				<tr data-role="loading-placeholder">
-					<td colspan="3">Loading...</td>
+				{% for worker in workers %}
+				<tr>
+					<td>{{ worker.state }}</td>
+					<td>{{ worker.name }}</td>
+					<td>{{ worker.queues }}</td>
 				</tr>
+				{% endfor %}
 				</tbody>
 			</table>
 
@@ -81,12 +88,12 @@
 	<div class="span12">
 		<div class="section">
 
-			<h1>Jobs on <strong class="failed">[[QUEUE-NAME]]</strong></h1>
+			<h1>Jobs on <strong class="failed">{{ defaultqueue.name }}</strong></h1>
 			<p class="intro">
 				<a href="#" id="empty-btn" class="btn btn-danger btn-small" style="float: right"><i class="icon-trash icon-white"></i> Empty</a>
 				<a href="#" id="compact-btn" class="btn btn-small" style="float: right; margin-right: 8px;"><i class="icon-resize-small"></i> Compact</a>
 				<a href="#" id="requeue-all-btn" class="btn btn-small" style="float: right; margin-right: 8px;"><i class="icon-retweet"></i> Requeue All</a>
-				This list below contains all the registered jobs on queue <strong>[[QUEUE-NAME]]</strong>, sorted by age (oldest on top).</p>
+				This list below contains all the registered jobs on queue <strong>{{ defaultqueue.name }}</strong>, sorted by age (oldest on top).</p>
 
 			<table id="jobs" class="table table-bordered">
 				<thead>
@@ -97,9 +104,13 @@
 				</tr>
 				</thead>
 				<tbody>
-				<tr data-role="loading-placeholder">
-					<td colspan="2">Loading...</td>
+				{% for job in defaultqueue.jobs %}
+				<tr>
+					<td>{{ job.description|default:job }}</td>
+					<td>{{ job.age }}</td>
+					<td></td>
 				</tr>
+				{% endfor %}
 				</tbody>
 			</table>
 

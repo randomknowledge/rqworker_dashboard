@@ -23,9 +23,9 @@ def enqueue(function, *args, **kwargs):
     timeout = kwargs.pop('timeout', 3600)
     return Queue(queue).enqueue(function, *args, timeout=timeout, **kwargs)
 
-def queueTestNormal( somarg, delay = 10 ):
+def queueTestNormal( somarg, delay = 60 ):
     sleep(delay)
 
-def queueTestFail( somarg, delay = 5 ):
+def queueTestFail( somarg, delay = 10 ):
     sleep(delay)
     raise Exception('Queue Test failed with arg "%s"!' % somearg)

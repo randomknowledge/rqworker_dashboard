@@ -1,8 +1,11 @@
 from io import StringIO
+import datetime
 from django.db.models import Model
 from django.db.models.query import QuerySet
 from django.utils.encoding import smart_unicode
+from django.conf import settings
 from django.utils.simplejson import dumps
+import pytz
 import times
 
 class UnableToSerializeError(Exception):
@@ -225,7 +228,13 @@ def serialize_queues(queues):
 def serialize_date(dt):
     if dt is None:
         return None
-    return times.format(dt, 'UTC')
+
+    return times.format(dt, get_tz())
+
+def get_tz( tzstring = None ):
+    if not tzstring:
+        tzstring = getattr(settings, 'TIME_ZONE', 'UTC')
+    return pytz.timezone(tzstring)
 
 
 def serialize_job(job):
@@ -233,12 +242,23 @@ def serialize_job(job):
         job.refresh()
     except Exception:
         pass
+
     return dict(
         id=job.id,
         created_at=serialize_date(job.created_at),
         enqueued_at=serialize_date(job.enqueued_at),
         ended_at=serialize_date(job.ended_at),
+        age=str(get_job_age(job)),
         origin=job.origin,
         result=job._result,
         exc_info=job.exc_info,
         description=job.description)
+
+def get_job_age(job):
+    c = job.created_at
+    if job.enqueued_at:
+        c = job.enqueued_at
+
+    if job.ended_at:
+        return job.ended_at - c
+    return datetime.datetime.utcnow() - c

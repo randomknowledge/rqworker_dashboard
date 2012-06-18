@@ -2,12 +2,8 @@ import re
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect
 from django.views.generic.base import View, TemplateView
-from . import setup_rq_connection
-from rq.job import Job
-from rq.worker import Worker, Queue
 from . import enqueue, queueTestNormal, queueTestFail
-from .utils import serialize_queues
-from .utils import serialize_job
+from .data import Data
 from .utils import JSONSerializer
 
 class ApiView(View):
@@ -28,16 +24,13 @@ class ApiView(View):
         except Exception:
             raise Http404()
 
-        setup_rq_connection()
-
         try:
             if len(funcandparms) == 1:
                 context = handler(request)
             else:
                 context = handler(request, funcandparms[1])
-        except Exception, e:
-            raise e
-            #raise Http404()
+        except Exception:
+            raise Http404()
 
         jsonSerializer = JSONSerializer()
         return HttpResponse(jsonSerializer.serialize(context, use_natural_keys=True), mimetype='application/json')
@@ -58,20 +51,17 @@ class ApiView(View):
                 return [match.group(0) for match in matches]
 
     def workers(self, request):
-        return [{'name': w.name, 'key': w.key, 'pid': w.pid, 'state': w.state, 'stopped': w.stopped} for w in Worker.all()]
+        return Data.workers()
 
     def queues(self, request):
-        queues = serialize_queues(sorted(Queue.all()))
-        return dict(queues=queues)
+        return Data.queues()
 
     def queue(self, request, name):
-        q = Queue(name)
-        return {'name': q.name, 'count': q.count, 'jobs': q.job_ids}
+        return Data.queue(name)
 
     def jobs(self, request, queuename):
-        queue = Queue(queuename)
-        jobs = [serialize_job(Job(id)) for id in queue.job_ids]
-        return dict(name=queue.name, jobs=jobs)
+        return Data.jobs(queuename)
+
 
 class TestsView(TemplateView):
     template_name = 'rqworker_dashboard/tests.html'
@@ -100,3 +90,24 @@ class TestsView(TemplateView):
 
 class DashboardView(TemplateView):
     template_name = 'rqworker_dashboard/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        queues = Data.queues()
+        defaultqueue = None
+        for queue in queues:
+            if queue.get('name') == 'default':
+                defaultqueue = queue
+        if not defaultqueue:
+            if len(queues):
+                defaultqueue = queues[0]
+            else:
+                defaultqueue = {'name': 'none'}
+
+        if defaultqueue.get('name') != 'none':
+            defaultqueue['jobs'] = Data.jobs(defaultqueue.get('name'))
+        return {
+            'workers': Data.workers(),
+            'queues': queues,
+            'jobs': Data.jobs(),
+            'defaultqueue': defaultqueue,
+        }
