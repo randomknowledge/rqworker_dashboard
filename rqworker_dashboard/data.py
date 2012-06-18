@@ -36,3 +36,16 @@ class Data(object):
             return jobs
         else:
             return [cls.jobs(queue.get('name')) for queue in cls.queues()]
+
+
+    @classmethod
+    def all(cls):
+        cls.__connect()
+
+        data = {
+            'workers': cls.workers(),
+            'queues': cls.queues(),
+            'jobs': cls.jobs(),
+        }
+
+        return data

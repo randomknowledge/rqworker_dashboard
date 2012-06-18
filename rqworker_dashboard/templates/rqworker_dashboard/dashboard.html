@@ -1,51 +1,43 @@
 {% extends 'rqworker_dashboard/bootstrap.html' %}
-
+{% load i18n %}
+{% load static %}
 {% block content %}
 <div class="row">
 	<div class="span6">
 		<div class="section">
 
-			<h1>Queues</h1>
-			<p class="fixed intro">This list below contains all the registered queues with the number of jobs currently in the queue.  Select a queue from above to view all jobs currently pending on the queue.</p>
+			<h1>{% trans "Queues" %}</h1>
+			<p class="fixed intro">{% blocktrans %}This list below contains all the registered queues with the number of jobs currently in the queue.  Select a queue from above to view all jobs currently pending on the queue.{% endblocktrans %}</p>
 
-			<table id="queues" class="table table-bordered">
+			<table id="queues" class="table table-bordered ">
 				<thead>
 				<tr>
-					<th>Queue</th>
-					<th class="narrow">Jobs</th>
+					<th>{% trans "Queue" %}</th>
+					<th class="narrow">{% trans "Jobs" %}</th>
 				</tr>
 				</thead>
 				<tbody>
-				{% for queue in queues %}
-				<tr data-role="queue"{% if queue.name == "failed" %} class="failed"{% endif %}>
-					<td><i class="icon-inbox" style="opacity: .5;"></i> <a href="#">{{ queue.name }}</a></td>
-					<td class="narrow">{{ queue.count }}</td>
-				</tr>
-				{% endfor %}
+				<script name="queue-row" type="text/template">
+					<tr data-role="queue" class="[[name]]">
+						<td><i class="icon-inbox" style="opacity: .5;"></i> <a href="#[[name]]">[[name]]</a></td>
+						<td class="narrow">[[count]]</td>
+					</tr>
+				</script>
+				<script name="no-queues-row" type="text/template">
+					<tr>
+						<td colspan="3">{% trans "No queues." %}</td>
+					</tr>
+				</script>
 				</tbody>
 			</table>
-
-			<script name="queue-row" type="text/template">
-				<tr data-role="queue">
-					<td><i class="icon-inbox" style="opacity: .5;"></i> <a href="#">[[NAME]]</a></td>
-					<td class="narrow">[[COUNT]]</td>
-				</tr>
-			</script>
-
-			<script name="no-queues-row" type="text/template">
-				<tr>
-					<td colspan="3">No queues.</td>
-				</tr>
-			</script>
-
 		</div>
 	</div>
 
 	<div class="span6">
 		<div class="section">
 
-			<h1>Workers</h1>
-			<p class="fixed intro">This list below contains all the registered workers.</p>
+			<h1>{% trans "Workers" %}</h1>
+			<p class="fixed intro">{% trans "This list below contains all the registered workers." %}</p>
 
 			<table id="workers" class="table table-bordered">
 				<thead>
@@ -56,21 +48,14 @@
 				</tr>
 				</thead>
 				<tbody>
-				{% for worker in workers %}
-				<tr>
-					<td>{{ worker.state }}</td>
-					<td>{{ worker.name }}</td>
-					<td>{{ worker.queues }}</td>
-				</tr>
-				{% endfor %}
 				</tbody>
 			</table>
 
 			<script name="worker-row" type="text/template">
 				<tr data-role="worker">
-					<td><i class="icon-success"></i></td>
-					<td>[[NAME]]</td>
-					<td>[[QUEUE_LIST]]</td>
+					<td><i class="icon-[[state]]"></i></td>
+					<td>[[name]]</td>
+					<td>[[queues]]</td>
 				</tr>
 			</script>
 
@@ -88,7 +73,7 @@
 	<div class="span12">
 		<div class="section">
 
-			<h1>Jobs on <strong class="failed">{{ defaultqueue.name }}</strong></h1>
+			<h1>Jobs on <strong>all Queues</strong></h1>
 			<p class="intro">
 				<a href="#" id="empty-btn" class="btn btn-danger btn-small" style="float: right"><i class="icon-trash icon-white"></i> Empty</a>
 				<a href="#" id="compact-btn" class="btn btn-small" style="float: right; margin-right: 8px;"><i class="icon-resize-small"></i> Compact</a>
@@ -115,16 +100,16 @@
 			</table>
 
 			<script name="job-row" type="text/template">
-				<tr data-role="job" data-job-id="[[JOB-ID]]">
+				<tr data-role="job" data-job-id="[[id]]">
 					<td>
 						<i class="icon-file" style="opacity: .5;"></i>
-						<span class="description">[[DESCRIPTION]]</span>
-						<span class="origin">from <strong>[[ORIGIN]]</strong></span>
-						<div class="job_id">[[JOB-ID]]</div>
-						<span class="end_date">Failed [[ENDED-AT]]</span>
-						<pre class="exc_info">[[EXEC-INFO]]</pre>
+						<span class="description">[[description]]</span>
+						<span class="origin">from <strong>[[origin]]</strong></span>
+						<div class="job_id">[[id]]</div>
+						<span class="end_date">[[ended_at]]</span>
+						<pre class="exc_info [[exc_info_class]]">[[exc_info]]</pre>
 					</td>
-					<td><span class="creation_date">[[CREATED-AT]]</span></td>
+					<td><span class="creation_date">[[created_at]]</span></td>
 					<td class="actions narrow">
 						<a href="#" data-role="requeue-job-btn" class="btn btn-small"><i class="icon-retweet"></i> Requeue</a>
 						<a href="#" data-role="cancel-job-btn" class="btn btn-small"><i class="icon-remove"></i> Cancel</a>
@@ -141,4 +126,8 @@
 		</div>
 	</div>
 </div>
+{% endblock %}
+{% block javascript %}
+{{ block.super }}
+<script type="text/javascript" src="{% static "rqworker_dashboard/js/rqworker_dashboard.js" %}" /></script>
 {% endblock %}

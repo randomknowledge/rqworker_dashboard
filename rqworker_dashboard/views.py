@@ -8,6 +8,7 @@ from .utils import JSONSerializer
 
 class ApiView(View):
     routes = [
+        ['all'],
         ['workers'],
         ['queues'],
         ['queue', re.compile(r'([a-z0-9]+)')],
@@ -29,7 +30,7 @@ class ApiView(View):
                 context = handler(request)
             else:
                 context = handler(request, funcandparms[1])
-        except Exception:
+        except Exception, e:
             raise Http404()
 
         jsonSerializer = JSONSerializer()
@@ -62,6 +63,9 @@ class ApiView(View):
     def jobs(self, request, queuename):
         return Data.jobs(queuename)
 
+    def all(self, request):
+        return Data.all()
+
 
 class TestsView(TemplateView):
     template_name = 'rqworker_dashboard/tests.html'
@@ -90,24 +94,3 @@ class TestsView(TemplateView):
 
 class DashboardView(TemplateView):
     template_name = 'rqworker_dashboard/dashboard.html'
-
-    def get_context_data(self, **kwargs):
-        queues = Data.queues()
-        defaultqueue = None
-        for queue in queues:
-            if queue.get('name') == 'default':
-                defaultqueue = queue
-        if not defaultqueue:
-            if len(queues):
-                defaultqueue = queues[0]
-            else:
-                defaultqueue = {'name': 'none'}
-
-        if defaultqueue.get('name') != 'none':
-            defaultqueue['jobs'] = Data.jobs(defaultqueue.get('name'))
-        return {
-            'workers': Data.workers(),
-            'queues': queues,
-            'jobs': Data.jobs(),
-            'defaultqueue': defaultqueue,
-        }

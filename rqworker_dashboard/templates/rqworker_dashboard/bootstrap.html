@@ -1,9 +1,11 @@
 {% load static %}
+{% load url from future %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:"en" }}">
+<html lang="{{ LANGUAGE_CODE|default:'en' }}" xmlns="http://www.w3.org/1999/html">
 <head>
 	<meta charset="utf-8">
-	<title>RQ Worker Dashboard</title>
+	<title>{% trans "RQ Worker Dashboard" %}</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="">
 	<meta name="author" content="">
@@ -14,6 +16,21 @@
 		body {
 			padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
 		}
+
+		.icon-idle {
+			background-position: -288px -72px;
+		}
+
+		.failed, .failed a { color: red; }
+
+		table#jobs { margin-top: 20px; }
+		table#jobs pre.exc_info {
+			font-size: 80%;
+			color: #555;
+			margin-left: 24px;
+			border-left: 2px solid darkOrange;
+			background-color: lightGoldenrodYellow;
+		}
 	</style>
 	<link href="{% static "rqworker_dashboard/css/bootstrap-responsive.css" %}" rel="stylesheet">
 
@@ -21,8 +38,10 @@
 	<!--[if lt IE 9]>
 	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
+	<script type="text/javascript">
+		window.api_url	= "{% url 'rqworker_dashboard_api' 'all' %}"
+	</script>
 </head>
-
 <body>
 <div class="navbar navbar-fixed-top">
 	<div class="navbar-inner">
@@ -32,15 +51,10 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</a>
-			<a class="brand" href="#">RQ Worker Dashboard</a>
+			<a class="brand" href="#">{% trans "RQ Worker Dashboard" %}</a>
 			<div class="nav-collapse">
 				<ul class="nav">
-					<li class="active"><a href="#">Home</a></li>
-					<!--
-					<li><a href="#workers">Workers</a></li>
-					<li><a href="#queues">Queues</a></li>
-					<li><a href="#jobs">Jobs</a></li>
-					-->
+					<li><a href="{% url 'admin:index' %}">{% trans "Admin Home" %}</a></li>
 				</ul>
 			</div><!--/.nav-collapse -->
 		</div>
@@ -50,5 +64,10 @@
 <div class="container">
 {% block content %}{% endblock %}
 </div> <!-- /container -->
+{% block javascript %}
+<script type="text/javascript" src="{% static "rqworker_dashboard/js/jquery.js" %}"></script>
+<script type="text/javascript" src="{% static "rqworker_dashboard/js/bootstrap.js" %}"></script>
+<script type="text/javascript" src="{% static "rqworker_dashboard/js/sugar-1.2.1.min.js" %}"></script>
+{% endblock %}
 </body>
 </html>

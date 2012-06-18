@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'RQWorkerDashboard.views.home', name='home'),
     # url(r'^RQWorkerDashboard/', include('RQWorkerDashboard.foo.urls')),
 
-    url(r'^rq/', include('rqworker_dashboard.urls')),
+    url(r'^admin/rq/', include('rqworker_dashboard.urls')),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
