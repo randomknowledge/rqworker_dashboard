@@ -1,4 +1,7 @@
 # Django settings for RQWorkerDashboard project.
+import os
+
+BASE_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__),os.pardir))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
