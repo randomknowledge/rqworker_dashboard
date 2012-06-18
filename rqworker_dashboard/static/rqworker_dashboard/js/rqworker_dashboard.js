@@ -37,6 +37,12 @@ $(document).ready(function(){
 		} else {
 			for( i = 0; i < data.queues.length; i++ )
 			{
+                if( data.queues[i]['name'] == "failed" )
+                {
+                    data.queues[i]['badge-class']   = 'badge-important';
+                } else {
+                    data.queues[i]['badge-class']   = 'badge-info';
+                }
 				$('#queues tbody').append( parseTemplate( $('script[name=queue-row]').text(), data.queues[i]) );
 			}
 		}
@@ -56,10 +62,13 @@ $(document).ready(function(){
 				{
 					data.jobs[i][j]['exc_info_class']	= !data.jobs[i][j]['exc_info'] ? 'hidden' : '';
 					data.jobs[i][j]['created_at']		= toRelative(data.jobs[i][j]['created_at']);
-
+                    data.jobs[i][j]['state-label']      = 'pending';
+                    data.jobs[i][j]['state-label-class']= 'label-info';
 					if( data.jobs[i][j]['ended_at'] )
 					{
 						data.jobs[i][j]['ended_at']		= toRelative(data.jobs[i][j]['ended_at']);
+                        data.jobs[i][j]['state-label']      = 'failed';
+                        data.jobs[i][j]['state-label-class']= 'label-important';
 					}
 
 					$('#jobs tbody').append( parseTemplate( $('script[name=job-row]').text(), data.jobs[i][j]) );
@@ -67,7 +76,10 @@ $(document).ready(function(){
 			}
 		}
 
-		//workers
+        $('a[data-role=cancel-job-btn]').unbind( '.rqworker_dashboard' );
+		$('a[data-role=cancel-job-btn]').bind( 'click.rqworker_dashboard', function(event){
+            cancelJob( $(this).parent().parent().attr('data-job-id') );
+        } );
 	};
 
 	parseTemplate = function( tpl, obj )
@@ -91,9 +103,16 @@ $(document).ready(function(){
 
 	toRelative = function(universal_date_string) {
 		var tzo = new Date().getTimezoneOffset();
-		var d = Date.create(universal_date_string).rewind({ minutes: tzo });
+		var d = Date.create(universal_date_string);
 		return d.relative();
 	};
+
+    cancelJob = function( id )
+    {
+        //doit = window.prompt( '' )
+        $('#delete-job-alert').html( parseTemplate($('#delete-job-alert').html(), {'id': id}) );
+        $('#delete-job-alert').modal();
+    };
 
 	reload();
 });

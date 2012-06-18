@@ -2,6 +2,21 @@
 {% load i18n %}
 {% load static %}
 {% block content %}
+
+    <div id="delete-job-alert" class="modal hide fade">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3>{% trans "Delete Job?" %}</h3>
+        </div>
+        <div class="modal-body">
+            <p>{% blocktrans %}Are you sure you want to delete job {% endblocktrans %}<span class="label label-info">[[id]]</span>?</p>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal" >Close</a>
+            <a href="#" class="btn btn-primary">{% trans "Delete Job!" %}</a>
+        </div>
+    </div>
+
 <div class="row">
 	<div class="span6">
 		<div class="section">
@@ -20,7 +35,7 @@
 				<script name="queue-row" type="text/template">
 					<tr data-role="queue" class="[[name]]">
 						<td><i class="icon-inbox" style="opacity: .5;"></i> <a href="#[[name]]">[[name]]</a></td>
-						<td class="narrow">[[count]]</td>
+						<td class="narrow"><span class="badge [[badge-class]]">[[count]]</span></td>
 					</tr>
 				</script>
 				<script name="no-queues-row" type="text/template">
@@ -102,7 +117,7 @@
 			<script name="job-row" type="text/template">
 				<tr data-role="job" data-job-id="[[id]]">
 					<td>
-						<i class="icon-file" style="opacity: .5;"></i>
+						<i class="label [[state-label-class]]">[[state-label]]</i>
 						<span class="description">[[description]]</span>
 						<span class="origin">from <strong>[[origin]]</strong></span>
 						<div class="job_id">[[id]]</div>
