@@ -43,8 +43,11 @@
 	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
 	<script type="text/javascript">
-		window.api_url	= "{% url 'rqworker_dashboard_api' 'all' %}"
+        window.api_url_all	= "{% url 'rqworker_dashboard_api' 'all' %}"
+        window.api_url_job    = "{% url 'rqworker_dashboard_api' 'job' %}"
 	</script>
+
+    {% block header_javascript %}{% endblock %}
 </head>
 <body>
 <div class="navbar navbar-fixed-top">

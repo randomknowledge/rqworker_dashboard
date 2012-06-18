@@ -1,9 +1,12 @@
+from django.conf import settings
 import re
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.views.generic.base import View, TemplateView
 from . import enqueue, queueTestNormal, queueTestFail
 from .data import Data
+from rq.job import requeue_job, cancel_job, Job
+from . import logger
 from .utils import JSONSerializer
 
 class ApiView(View):
@@ -11,8 +14,10 @@ class ApiView(View):
         ['all'],
         ['workers'],
         ['queues'],
-        ['queue', re.compile(r'([a-z0-9]+)')],
-        ['jobs', re.compile(r'([a-z0-9]+)')],
+        ['test', 'add', re.compile(r'(normal|failing)')],
+        ['queue', re.compile(r'([a-z0-9]{1,50})')],
+        ['jobs', re.compile(r'([a-z0-9]{1,50})')],
+        ['job', re.compile(r'([a-zA-Z0-9-]{1,50})'), re.compile(r'(requeue|delete)?')],
     ]
 
     def get(self, request, *args, **kwargs):
@@ -21,17 +26,16 @@ class ApiView(View):
 
         funcandparms = self.get_function( path )
         try:
-            handler = getattr(self, funcandparms[0])
-        except Exception:
-            raise Http404()
+            handler = getattr(self, funcandparms.pop(0))
+        except Exception, e:
+            logger.warning(e)
+            return HttpResponse('Bad Request', status=400)
 
         try:
-            if len(funcandparms) == 1:
-                context = handler(request)
-            else:
-                context = handler(request, funcandparms[1])
+            context = handler(request, *funcandparms)
         except Exception, e:
-            raise Http404()
+            logger.warning(e)
+            return HttpResponse('Bad Request', status=400)
 
         jsonSerializer = JSONSerializer()
         return HttpResponse(jsonSerializer.serialize(context, use_natural_keys=True), mimetype='application/json')
@@ -66,31 +70,40 @@ class ApiView(View):
     def all(self, request):
         return Data.all()
 
+    def job(self, request, *args):
+        args = list(args)
+        id = args.pop(0)
 
-class TestsView(TemplateView):
-    template_name = 'rqworker_dashboard/tests.html'
+        Data.connect()
 
-    def get(self, request, *args, **kwargs):
-        queue = kwargs.get('queue','default')
-        test = kwargs.get('test','')
-        if test:
-            if test == 'normal':
-                enqueue( queueTestNormal, 'normal test', queue=queue )
-            else:
-                enqueue( queueTestFail, 'failing test', queue=queue )
-            request.session['rqworker_dashboard_test'] = test
-            request.session['rqworker_dashboard_queue'] = queue
-            return redirect('rqworker_dashboard_tests')
+        if not args:
+            return Data.job(id)
+        else:
+            action = args.pop(0)
+        if action == 'requeue':
+            requeue_job(id)
+        elif action == 'delete':
+            try:
+                Job(id).refresh()
+                cancel_job(id)
+            except Exception, e:
+                logger.warn(e)
+        return {'status': 'OK'}
 
-        context = {
-            'test': request.session.get('rqworker_dashboard_test'),
-            'queue': request.session.get('rqworker_dashboard_queue'),
-        }
+    def test(self, request, add, *args):
+        if not args:
+            raise NotImplementedError
 
-        request.session['rqworker_dashboard_test'] = ''
-        request.session['rqworker_dashboard_queue'] = ''
-        return self.render_to_response(context)
+        if args[0] == "normal":
+            enqueue( queueTestNormal, 'normal test' )
+        else:
+            enqueue( queueTestFail, 'failing test' )
+        return {'status': 'OK'}
 
 
 class DashboardView(TemplateView):
     template_name = 'rqworker_dashboard/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        opts = getattr(settings, 'RQ_DASHBOARD_SETTINGS', {})
+        return { 'poll_interval': opts.get('poll_interval', 10) }

@@ -1,8 +1,37 @@
 $(document).ready(function(){
+    templateData    = null;
+    pollInterval    = null;
+    pollPaused      = false;
+
+    $('#job-alert').bind('hide', function(event){
+        resumePolling();
+    });
+
+    $('#refresh-toggle-button').click(function(event){
+        $(this).find('i').removeClass('icon-pause', false);
+        $(this).find('i').removeClass('icon-play', false);
+        if( $(this).hasClass('active') )
+        {
+            stopPolling();
+            $(this).find('i').addClass('icon-play');
+        } else {
+            startPolling();
+            $(this).find('i').addClass('icon-pause');
+        }
+    });
+
+    $('#refresh-button').click(function(event){
+        reload();
+    });
+
 	reload = function()
 	{
+        if( pollPaused )
+        {
+            return;
+        }
 		$.ajax({
-			url: window.api_url,
+			url: window.api_url_all,
 			dataType: 'json',
 			success: function(data, textStatus, jqXHR) {
 				updateAll(data);
@@ -47,6 +76,8 @@ $(document).ready(function(){
 			}
 		}
 
+        data.jobs.reverse();
+
 		if( !data.jobs.length )
 		{
 			$('#jobs tbody').append( $('script[name=no-jobs-row]').text() );
@@ -69,17 +100,44 @@ $(document).ready(function(){
 						data.jobs[i][j]['ended_at']		= toRelative(data.jobs[i][j]['ended_at']);
                         data.jobs[i][j]['state-label']      = 'failed';
                         data.jobs[i][j]['state-label-class']= 'label-important';
-					}
+					} else {
+                        data.jobs[i][j]['requeue-button-additional-class']= 'hidden';
+                    }
 
 					$('#jobs tbody').append( parseTemplate( $('script[name=job-row]').text(), data.jobs[i][j]) );
 				}
 			}
 		}
 
-        $('a[data-role=cancel-job-btn]').unbind( '.rqworker_dashboard' );
+        if( templateData == null )
+        {
+            templateData    = {};
+            $('[data-type=template]').each(function(idx,ele){
+                templateData[$(ele).attr('id')] = $(ele).html();
+            });
+        }
+
+        $('a').unbind( '.rqworker_dashboard' );
 		$('a[data-role=cancel-job-btn]').bind( 'click.rqworker_dashboard', function(event){
+            event.preventDefault();
             cancelJob( $(this).parent().parent().attr('data-job-id') );
         } );
+
+        $('a[data-role=requeue-job-btn]').bind( 'click.rqworker_dashboard', function(event){
+            event.preventDefault();
+            requeueJob( $(this).parent().parent().attr('data-job-id') );
+        } );
+
+        $('a[rel=quick-ajax]').bind('click.rqworker_dashboard', function(event){
+            event.preventDefault();
+            $.ajax({
+                url: $(this).attr('href'),
+                dataType: 'json',
+                success: function(data, textStatus, jqXHR) {
+                    reload();
+                }
+            });
+        });
 	};
 
 	parseTemplate = function( tpl, obj )
@@ -107,12 +165,75 @@ $(document).ready(function(){
 		return d.relative();
 	};
 
+    modalDone = function()
+    {
+
+        $('#job-alert').modal().hide();
+        $('#job-alert .modal-header button.close').click();
+        reload();
+    };
+
     cancelJob = function( id )
     {
-        //doit = window.prompt( '' )
-        $('#delete-job-alert').html( parseTemplate($('#delete-job-alert').html(), {'id': id}) );
-        $('#delete-job-alert').modal();
+        pausePolling();
+        $('#job-alert').html( parseTemplate(templateData['job-alert'], {'id': id, 'headline': 'Delete Job', 'question': 'Are you sure you want to delete job'}) );
+        $('#job-alert').modal();
+
+        $('#job-alert a[rel=yes]').unbind( '.rqworker_dashboard' );
+        $('#job-alert a[rel=yes]').bind('click.rqworker_dashboard', function(event){
+            event.preventDefault();
+            $.ajax({
+                url: window.api_url_job + '/' + id + '/delete',
+                dataType: 'json',
+                success: modalDone,
+                error: modalDone
+            });
+        });
+    };
+
+    requeueJob = function( id )
+    {
+        pausePolling();
+        $('#job-alert').html( parseTemplate(templateData['job-alert'], {'id': id, 'headline': 'Requeue Job', 'question': 'Are you sure you want to requeue job'}) );
+        $('#job-alert').modal();
+
+        $('#job-alert a[rel=yes]').unbind( '.rqworker_dashboard' );
+        $('#job-alert a[rel=yes]').bind('click.rqworker_dashboard', function(event){
+            event.preventDefault();
+            $.ajax({
+                url: window.api_url_job + '/' + id + '/requeue',
+                dataType: 'json',
+                success: modalDone,
+                error: modalDone
+            });
+        });
+    };
+
+    startPolling = function()
+    {
+        stopPolling();
+        pollInterval    = setInterval( reload, window.poll_interval * 1000 );
+        reload();
+    };
+
+    stopPolling = function()
+    {
+        try
+        {
+            clearInterval(pollInterval);
+        } catch(e){}
+    };
+
+    pausePolling = function()
+    {
+        pollPaused  = true;
+    };
+
+    resumePolling = function()
+    {
+        pollPaused  = false;
     };
 
 	reload();
+    startPolling();
 });
