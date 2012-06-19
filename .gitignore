@@ -12,7 +12,7 @@
 .idea/
 virtualenv/
 ext/
-biketracker/
+RQWorkerDashboard/
 
 # Files #
 #########
