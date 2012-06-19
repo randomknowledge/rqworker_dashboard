@@ -10,8 +10,8 @@ $ pip install -e git+https://github.com/randomknowledge/rqworker_dashboard.git#e
 ```
 
 
-Add this to your project's `settings.py`.
-Those are also the default settings.
+Add this to your project's `settings.py` and add rqworker_dashboard to INSTALLED_APPS.
+Those are also the default settings:
 
 ```python
 RQ_DASHBOARD_SETTINGS = {
