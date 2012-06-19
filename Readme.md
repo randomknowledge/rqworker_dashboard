@@ -1,0 +1,2 @@
+## `rqworker_dashboard` is a django app that provides a simple dashboard for `RQ <https://github.com/nvie/rq>`_ (`Redis <http://redis.io/>`_ Queue).
+### Inspired by `rq-dashboard <https://github.com/nvie/rq-dashboard>`_

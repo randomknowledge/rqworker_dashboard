@@ -1,15 +1,31 @@
+from setuptools import setup
 import finddata
-from setuptools import setup, find_packages
 
 
 setup(
     name="rqworker_dashboard",
     author="Florian Finke",
     author_email="flo@randomknowledge.org",
-    version='0.1',
-    packages=find_packages(),
-    package_data=finddata.find_package_data(
-        exclude_directories=finddata.standard_exclude_directories + ('RQWorkerDashboard',),
-        exclude=finddata.standard_exclude + ('database.db',)),
+    version='0.1.0',
+    packages=['rqworker_dashboard'],
+    package_data=finddata.find_package_data(),
+    url='https://git.randomknowledge.org/rqworker_dashboard',
     include_package_data=True,
+    license='MIT',
+    description='rqworker_dashboard is a django app that provides a simple dashboard for RQ (Redis Queue).'
+                ' Inspired by https://github.com/nvie/rq-dashboard',
+    long_description=open('Readme.md').read(),
+    zip_safe=False,
+    install_requires=['Django==1.4', 'raven==1.8.1', '-e git+https://github.com/nvie/rq.git#egg=rq'],
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        ]
 )
