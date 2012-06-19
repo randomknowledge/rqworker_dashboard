@@ -12,12 +12,13 @@ setup(
     url='https://git.randomknowledge.org/rqworker_dashboard',
     include_package_data=True,
     license='MIT',
-    description='rqworker_dashboard is a django app that provides a simple dashboard for RQ (Redis Queue).'
+    description='rqworker_dashboard is a django app that provides a simple'
+                ' dashboard for RQ (Redis Queue).'
                 ' Inspired by https://github.com/nvie/rq-dashboard',
     long_description=open('Readme.md').read(),
     zip_safe=False,
     install_requires=['Django==1.4', 'raven==1.8.1', 'rq'],
-    dependency_links = ['https://github.com/nvie/rq/tarball/master#egg=rq'],
+    dependency_links=['https://github.com/nvie/rq/tarball/master#egg=rq'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

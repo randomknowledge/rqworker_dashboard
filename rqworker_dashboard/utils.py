@@ -8,6 +8,7 @@ from django.utils.simplejson import dumps
 import pytz
 import times
 
+
 class UnableToSerializeError(Exception):
     """ Error for not implemented classes """
     def __init__(self, value):
@@ -17,10 +18,12 @@ class UnableToSerializeError(Exception):
     def __str__(self):
         return repr(self.value)
 
+
 class JSONSerializer():
     boolean_fields = ['BooleanField', 'NullBooleanField']
     datetime_fields = ['DatetimeField', 'DateField', 'TimeField']
-    number_fields = ['IntegerField', 'AutoField', 'DecimalField', 'FloatField', 'PositiveSmallIntegerField']
+    number_fields = ['IntegerField', 'AutoField', 'DecimalField',
+            'FloatField', 'PositiveSmallIntegerField']
 
     def serialize(self, obj, **options):
         self.options = options
@@ -55,6 +58,7 @@ class JSONSerializer():
     def start_array(self):
         """Called when serializing of an array starts."""
         self.stream.write(u'[')
+
     def end_array(self):
         """Called when serializing of an array ends."""
         self.stream.write(u']')
@@ -93,7 +97,7 @@ class JSONSerializer():
         i = 0
         self.start_object()
         for key, value in d.iteritems():
-            self.currentLoc += key+'.'
+            self.currentLoc += key + '.'
             #self.stream.write(unicode(self.currentLoc))
             i += 1
             self.handle_simple(key)
@@ -101,7 +105,7 @@ class JSONSerializer():
             self.handle_object(value)
             if i != len(d):
                 self.stream.write(u', ')
-            self.currentLoc = self.currentLoc[0:(len(self.currentLoc)-len(key)-1)]
+            self.currentLoc = self.currentLoc[0:(len(self.currentLoc) - len(key) - 1)]
         self.end_object()
 
     def handle_list(self, l):
@@ -110,7 +114,7 @@ class JSONSerializer():
 
         for value in l:
             self.handle_object(value)
-            if l.index(value) != len(l) -1:
+            if l.index(value) != len(l) - 1:
                 self.stream.write(u', ')
 
         self.end_array()
@@ -132,7 +136,7 @@ class JSONSerializer():
             if self.selectedFields is None or field.attname in self.selectedFields:
                 if self.ignoredFields is None or self.currentLoc + field.attname not in self.ignoredFields:
                     self.handle_m2m_field(mod, field)
-        self.stream.seek(self.stream.tell()-2)
+        self.stream.seek(self.stream.tell() - 2)
         self.end_object()
 
     def handle_queryset(self, queryset):
@@ -205,7 +209,7 @@ class JSONSerializer():
                 self.handle_simple(d)
                 self.stream.write(u', ')
             if hasRelationships:
-                self.stream.seek(self.stream.tell()-2)
+                self.stream.seek(self.stream.tell() - 2)
             self.end_array()
             self.stream.write(u', ')
 
@@ -221,6 +225,7 @@ class JSONSerializer():
         if callable(getattr(self.stream, 'getvalue', None)):
             return self.stream.getvalue()
 
+
 def serialize_queues(queues):
     return [dict(name=q.name, count=q.count, jobs=q.job_ids) for q in queues]
 
@@ -231,7 +236,8 @@ def serialize_date(dt):
 
     return times.format(dt, get_tz())
 
-def get_tz( tzstring = None ):
+
+def get_tz(tzstring=None):
     if not tzstring:
         tzstring = getattr(settings, 'TIME_ZONE', 'UTC')
     return pytz.timezone(tzstring)
@@ -253,6 +259,7 @@ def serialize_job(job):
         result=job._result,
         exc_info=job.exc_info,
         description=job.description)
+
 
 def get_job_age(job):
     c = job.created_at

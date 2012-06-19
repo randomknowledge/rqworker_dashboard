@@ -1,13 +1,13 @@
 from django.conf import settings
 import re
 from django.http import HttpResponse
-from django.shortcuts import redirect
 from django.views.generic.base import View, TemplateView
 from . import enqueue, queueTestNormal, queueTestFail
 from .data import Data
 from rq.job import requeue_job, cancel_job, Job
 from . import logger
 from .utils import JSONSerializer
+
 
 class ApiView(View):
     routes = [
@@ -17,14 +17,15 @@ class ApiView(View):
         ['test', 'add', re.compile(r'(normal|failing)')],
         ['queue', re.compile(r'([a-z0-9]{1,50})')],
         ['jobs', re.compile(r'([a-z0-9]{1,50})')],
-        ['job', re.compile(r'([a-zA-Z0-9-]{1,50})'), re.compile(r'(requeue|delete)?')],
+        ['job', re.compile(r'([a-zA-Z0-9-]{1,50})'),
+            re.compile(r'(requeue|delete)?')],
     ]
 
     def get(self, request, *args, **kwargs):
-        path = re.sub( r'^/+', '', kwargs.get('path',''))
-        path = re.sub( r'/+$', '', path).split('/')
+        path = re.sub(r'^/+', '', kwargs.get('path', ''))
+        path = re.sub(r'/+$', '', path).split('/')
 
-        funcandparms = self.get_function( path )
+        funcandparms = self.get_function(path)
         try:
             handler = getattr(self, funcandparms.pop(0))
         except Exception, e:
@@ -38,7 +39,9 @@ class ApiView(View):
             return HttpResponse('Bad Request', status=400)
 
         jsonSerializer = JSONSerializer()
-        return HttpResponse(jsonSerializer.serialize(context, use_natural_keys=True), mimetype='application/json')
+        return HttpResponse(
+                jsonSerializer.serialize(context, use_natural_keys=True),
+                mimetype='application/json')
 
     def get_function(self, path):
         for route in self.routes:
@@ -46,7 +49,7 @@ class ApiView(View):
             matches = []
             for i in range(l):
                 try:
-                    match = re.match(route[i],path[i])
+                    match = re.match(route[i], path[i])
                 except Exception:
                     pass
                 else:
@@ -95,9 +98,9 @@ class ApiView(View):
             raise NotImplementedError
 
         if args[0] == "normal":
-            enqueue( queueTestNormal, 'normal test' )
+            enqueue(queueTestNormal, 'normal test')
         else:
-            enqueue( queueTestFail, 'failing test' )
+            enqueue(queueTestFail, 'failing test')
         return {'status': 'OK'}
 
 
@@ -106,4 +109,4 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         opts = getattr(settings, 'RQ_DASHBOARD_SETTINGS', {})
-        return { 'poll_interval': opts.get('poll_interval', 10) }
+        return {'poll_interval': opts.get('poll_interval', 10)}
