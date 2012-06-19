@@ -17,7 +17,7 @@ setup(
     long_description=open('Readme.md').read(),
     zip_safe=False,
     install_requires=['Django==1.4', 'raven==1.8.1', 'rq'],
-    dependency_links = ['https://github.com/nvie/rq/commit/5c11ea62962af481a4e89f6148adffe6ab50af29#egg=rq'],
+    dependency_links = ['https://github.com/nvie/rq/tarball/master#egg=rq'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
