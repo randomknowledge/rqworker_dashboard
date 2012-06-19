@@ -16,7 +16,8 @@ setup(
                 ' Inspired by https://github.com/nvie/rq-dashboard',
     long_description=open('Readme.md').read(),
     zip_safe=False,
-    install_requires=['Django==1.4', 'raven==1.8.1', '-e git+https://github.com/nvie/rq.git#egg=rq'],
+    install_requires=['Django==1.4', 'raven==1.8.1', 'rq'],
+    dependency_links = ['https://github.com/nvie/rq.git#egg=rq'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
