@@ -10,6 +10,6 @@ setup(
     packages=find_packages(),
     package_data=finddata.find_package_data(
         exclude_directories=finddata.standard_exclude_directories + ('RQWorkerDashboard',),
-        exclude=finddata.standard_exclude + 'database.db'),
+        exclude=finddata.standard_exclude + ('database.db',)),
     include_package_data=True,
 )
