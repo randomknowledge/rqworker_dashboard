@@ -31,4 +31,4 @@ Add this to your project's `urls.py`:
 url(r'^admin/rq/', include('rqworker_dashboard.urls')),
 ```
 
-### Login to django admin and point your browser to [http://your.server>/admin/rq/](http://your.server>/admin/rq/)
+### Login to django admin and point your browser to [http://your.server/admin/rq/](http://your.server/admin/rq/)
