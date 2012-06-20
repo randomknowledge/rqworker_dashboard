@@ -9,7 +9,7 @@ setup(
     version='0.1.2',
     packages=['rqworker_dashboard'],
     package_data=finddata.find_package_data(),
-    url='https://git.randomknowledge.org/rqworker_dashboard',
+    url='https://github.com/randomknowledge/rqworker_dashboard',
     include_package_data=True,
     license='MIT',
     description='rqworker_dashboard is a django app that provides a simple'
