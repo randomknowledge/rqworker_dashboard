@@ -12,15 +12,25 @@ if not logger.handlers:
     logger.addHandler(logging.NullHandler())
 
 MODULE_DIR = os.path.dirname(__file__)
-TEMPLATE_DIRS = getattr(settings, 'TEMPLATE_DIRS', ())
-TEMPLATE_DIRS += (os.path.join(MODULE_DIR,'templates'),)
-setattr(settings, 'TEMPLATE_DIRS', TEMPLATE_DIRS)
+
+OPTIONS = getattr(settings, 'RQ_DASHBOARD_SETTINGS', {
+    'poll_interval': 10,
+    'remove_ghost_workers': True,
+    'connection': {
+        'db': 0,
+        'host': 'localhost',
+        'port': 6379
+    }
+})
+
+def redis_runs_on_same_machine():
+    host = OPTIONS.get('connection').get('host')
+    return host == 'localhost' or host == '127.0.0.1'
 
 def setup_rq_connection():
     redis_conn = get_current_connection()
     if redis_conn == None:
-        opts = getattr(settings, 'RQ_DASHBOARD_SETTINGS', {})
-        opts = opts.get('connection', {'db': 0, 'host': 'localhost', 'port': 6379})
+        opts = OPTIONS.get('connection')
         logger.debug('Establishing Redis connection to DB %(db)s at %(host)s:%(port)s' % opts)
         redis_conn = Redis(**opts)
         push_connection(redis_conn)
@@ -33,6 +43,7 @@ def enqueue(function, *args, **kwargs):
 
 def queueTestNormal( somarg, delay = 10 ):
     sleep(delay)
+    return True
 
 def queueTestFail( somarg, delay = 10 ):
     sleep(delay)

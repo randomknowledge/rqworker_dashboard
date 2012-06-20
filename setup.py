@@ -6,7 +6,7 @@ setup(
     name="rqworker_dashboard",
     author="Florian Finke",
     author_email="flo@randomknowledge.org",
-    version='0.1.0',
+    version='0.1.1',
     packages=['rqworker_dashboard'],
     package_data=finddata.find_package_data(),
     url='https://git.randomknowledge.org/rqworker_dashboard',
@@ -17,7 +17,7 @@ setup(
                 ' Inspired by https://github.com/nvie/rq-dashboard',
     long_description=open('Readme.md').read(),
     zip_safe=False,
-    install_requires=['Django==1.4', 'raven==1.8.1', 'rq'],
+    install_requires=['Django==1.4', 'raven==1.8.1', 'rq', 'psutil==0.4.1'],
     dependency_links=['https://github.com/nvie/rq/tarball/master#egg=rq'],
     classifiers=[
         'Development Status :: 4 - Beta',

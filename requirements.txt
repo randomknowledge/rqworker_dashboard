@@ -1,3 +1,4 @@
 Django==1.4
 raven==1.8.1
 -e git+https://github.com/nvie/rq.git#egg=rq
+psutil==0.4.1

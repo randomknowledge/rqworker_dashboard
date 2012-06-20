@@ -2,7 +2,7 @@ from . import setup_rq_connection
 from rq.job import Job
 from rq.queue import Queue
 from rq.worker import Worker
-from .utils import serialize_queues, serialize_job
+from .utils import serialize_queues, serialize_job, remove_ghost_workers
 
 
 class Data(object):
@@ -14,6 +14,7 @@ class Data(object):
     @classmethod
     def workers(cls):
         cls.connect()
+        remove_ghost_workers()
         return [{'name': w.name, 'key': w.key,
             'pid': w.pid, 'state': w.state, 'stopped': w.stopped,
             'queues': w.queue_names()} for w in Worker.all()]

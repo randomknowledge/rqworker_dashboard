@@ -1,4 +1,3 @@
-from django.conf import settings
 import re
 from django.http import HttpResponse
 from django.views.generic.base import View, TemplateView
@@ -6,6 +5,7 @@ from . import enqueue, queueTestNormal, queueTestFail
 from .data import Data
 from rq.job import requeue_job, cancel_job, Job
 from . import logger
+from . import OPTIONS
 from .utils import JSONSerializer
 
 
@@ -108,5 +108,4 @@ class DashboardView(TemplateView):
     template_name = 'rqworker_dashboard/dashboard.html'
 
     def get_context_data(self, **kwargs):
-        opts = getattr(settings, 'RQ_DASHBOARD_SETTINGS', {})
-        return {'poll_interval': opts.get('poll_interval', 10)}
+        return {'poll_interval': OPTIONS.get('poll_interval', 10)}

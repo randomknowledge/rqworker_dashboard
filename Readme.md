@@ -15,7 +15,9 @@ Those are also the default settings:
 
 ```python
 RQ_DASHBOARD_SETTINGS = {
-    'poll_interval': 10,
+    'poll_interval': 10,            # Update dashboard every `poll_interval` seconds
+    'remove_ghost_workers': True,  # Remove Redis Keys of workers that don't have a running process (Ghost workers)
+                                    # Only works if Redis runs on the same machine!
     'connection': {
         'db': 0,
         'host': 'localhost',
