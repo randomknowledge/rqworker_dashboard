@@ -1,5 +1,4 @@
 import logging
-import os
 from time import sleep
 from django.utils import log
 from redis.client import Redis
@@ -12,8 +11,6 @@ logger  = logging.getLogger()
 if not logger.handlers:
     logger.addHandler(log.NullHandler())
 
-MODULE_DIR = os.path.dirname(__file__)
-
 OPTIONS = getattr(settings, 'RQ_DASHBOARD_SETTINGS', {
     'poll_interval': 10,
     'remove_ghost_workers': True,
@@ -23,6 +20,8 @@ OPTIONS = getattr(settings, 'RQ_DASHBOARD_SETTINGS', {
         'port': 6379
     }
 })
+
+RAISE_EXCEPTIONS = getattr(settings, 'DEBUG', False)
 
 def redis_runs_on_same_machine():
     host = OPTIONS.get('connection').get('host')

@@ -1,11 +1,9 @@
 import re
 from django.http import HttpResponse
 from django.views.generic.base import View, TemplateView
-from . import enqueue, queueTestNormal, queueTestFail
+from . import enqueue, queueTestNormal, queueTestFail, logger, OPTIONS, RAISE_EXCEPTIONS
 from .data import Data
 from rq.job import requeue_job, cancel_job, Job
-from . import logger
-from . import OPTIONS
 from .utils import JSONSerializer
 
 
@@ -29,14 +27,20 @@ class ApiView(View):
         try:
             handler = getattr(self, funcandparms.pop(0))
         except Exception, e:
-            logger.warning(e)
-            return HttpResponse('Bad Request', status=400)
+            if RAISE_EXCEPTIONS:
+                raise e
+            else:
+                logger.warning(e)
+                return HttpResponse('Bad Request', status=400)
 
         try:
-            context = handler(request, *funcandparms)
+            context = handler(*funcandparms)
         except Exception, e:
-            logger.warning(e)
-            return HttpResponse('Bad Request', status=400)
+            if RAISE_EXCEPTIONS:
+                raise e
+            else:
+                logger.warning(e)
+                return HttpResponse('Bad Request', status=400)
 
         jsonSerializer = JSONSerializer()
         return HttpResponse(
@@ -58,22 +62,22 @@ class ApiView(View):
             if len(matches) == l:
                 return [match.group(0) for match in matches]
 
-    def workers(self, request):
+    def workers(self):
         return Data.workers()
 
-    def queues(self, request):
+    def queues(self):
         return Data.queues()
 
-    def queue(self, request, name):
+    def queue(self, name):
         return Data.queue(name)
 
-    def jobs(self, request, queuename=None):
+    def jobs(self, queuename=None):
         return Data.jobs(queuename)
 
-    def all(self, request):
+    def all(self):
         return Data.all()
 
-    def job(self, request, *args):
+    def job(self, *args):
         args = list(args)
         id = args.pop(0)
 
@@ -90,10 +94,13 @@ class ApiView(View):
                 Job(id).refresh()
                 cancel_job(id)
             except Exception, e:
-                logger.warn(e)
+                if RAISE_EXCEPTIONS:
+                    raise e
+                else:
+                    logger.warn(e)
         return {'status': 'OK'}
 
-    def test(self, request, add, *args):
+    def test(self, add, *args):
         if not args:
             raise NotImplementedError
 
