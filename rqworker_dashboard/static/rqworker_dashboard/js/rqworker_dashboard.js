@@ -83,7 +83,7 @@ $(document).ready(function(){
 				allQueues.push(data.queues[i]['name']);
 				if( selectedQueue == null )
 				{
-					selectedQueue	= queue;
+					selectedQueue	= data.queues[i]['name'];
 				}
                 if( data.queues[i]['name'] == "failed" )
                 {
