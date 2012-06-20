@@ -56,8 +56,7 @@ class Data(object):
         job = Job(id)
         try:
             job.refresh()
-        except Exception, e:
-            print e.message
+        except Exception:
             pass
         return serialize_job(job)
 
