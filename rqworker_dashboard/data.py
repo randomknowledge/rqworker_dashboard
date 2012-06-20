@@ -44,7 +44,11 @@ class Data(object):
             jobs = [serialize_job(Job(id)) for id in queue.job_ids]
             return jobs
         else:
-            return [cls.jobs(queue.get('name')) for queue in cls.queues()]
+            j = {}
+            for queue in cls.queues():
+                n = queue.get('name')
+                j[n] = cls.jobs(n)
+            return j
 
     @classmethod
     def job(cls, id):
@@ -61,9 +65,28 @@ class Data(object):
     def all(cls):
         cls.connect()
 
+        workers = cls.workers()
+        queues = cls.queues()
+
+        def make_queue_dict(q):
+            return dict(name=q, count=0, jobs=[])
+
+        def has_queue(queues, name):
+            for q in queues:
+                if q.get('name') == name:
+                    return True
+            return False
+
+        if workers:
+            for w in workers:
+                wqueues = map(make_queue_dict, w.get('queues', []))
+                for wqueue in wqueues:
+                    if not has_queue(queues,wqueue.get('name')):
+                        queues.append(wqueue)
+
         data = {
-            'workers': cls.workers(),
-            'queues': cls.queues(),
+            'workers': workers,
+            'queues': queues,
             'jobs': cls.jobs(),
         }
 

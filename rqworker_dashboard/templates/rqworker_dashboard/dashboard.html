@@ -34,7 +34,7 @@
 <div class="row">
 	<div class="span6">
 		<div class="section">
-			<h1>{% trans "Queues" %}</h1>
+			<h2>{% trans "Queues" %}</h2>
 			<p class="fixed intro">{% blocktrans %}This list below contains all the registered queues with the number of jobs currently in the queue.  Select a queue from above to view all jobs currently pending on the queue.{% endblocktrans %}</p>
 
 			<table id="queues" class="table table-bordered ">
@@ -64,7 +64,7 @@
 	<div class="span6">
 		<div class="section">
 
-			<h1>{% trans "Workers" %}</h1>
+			<h2>{% trans "Workers" %}</h2>
 			<p class="fixed intro">{% trans "This list below contains all the registered workers." %}<br /><br /></p>
 
 			<table id="workers" class="table table-bordered">
@@ -101,10 +101,12 @@
 	<div class="span12">
 		<div class="section">
 
-			<h1>Jobs on <strong>all Queues</strong></h1>
+			<h2>Jobs on <span id="queuename">default</span> Queue</h2>
 			<p class="intro">
+				<!--
 				<a href="#" id="empty-btn" class="btn btn-danger btn-small" style="float: right"><i class="icon-trash icon-white"></i> Empty</a>
 				<a href="#" id="requeue-all-btn" class="btn btn-small" style="float: right; margin-right: 8px;"><i class="icon-retweet"></i> Requeue All</a>
+				-->
 				This list below contains all the registered jobs on queue <strong>{{ defaultqueue.name }}</strong>, sorted by age (oldest on top).
             </p>
 

@@ -25,7 +25,11 @@
             background-position: -48px -24px;
         }
 
-		.failed, .failed a { color: red; }
+		#queuename {
+			color: #005580;
+		}
+
+		.failed, .failed a, #queuename.failed { color: red; }
 
 		table#jobs { margin-top: 20px; }
 		table#jobs pre.exc_info {
@@ -35,6 +39,8 @@
 			border-left: 2px solid darkOrange;
 			background-color: lightGoldenrodYellow;
 		}
+
+		tr.active { background-color: #e5e5e5; }
 	</style>
 	<link href="{% static "rqworker_dashboard/css/bootstrap-responsive.css" %}" rel="stylesheet">
 

@@ -1,7 +1,20 @@
+if( !Array.indexOf )
+{
+	Array.prototype.indexOf = function(obj, start) {
+		for (var i = (start || 0); i < this.length; i++) {
+			if (this[i] == obj) {
+				return i;
+			}
+		}
+		return -1;
+	}
+}
+
 $(document).ready(function(){
     templateData    = null;
     pollInterval    = null;
     pollPaused      = false;
+	selectedQueue	= null;
 
     $('#job-alert').bind('hide', function(event){
         resumePolling();
@@ -60,12 +73,18 @@ $(document).ready(function(){
 			}
 		}
 
+		var allQueues	= [];
 		if( !data.queues.length )
 		{
 			$('#queues tbody').append( $('script[name=no-queues-row]').text() );
 		} else {
 			for( i = 0; i < data.queues.length; i++ )
 			{
+				allQueues.push(data.queues[i]['name']);
+				if( selectedQueue == null )
+				{
+					selectedQueue	= queue;
+				}
                 if( data.queues[i]['name'] == "failed" )
                 {
                     data.queues[i]['badge-class']   = 'badge-important';
@@ -76,36 +95,43 @@ $(document).ready(function(){
 			}
 		}
 
-        data.jobs.reverse();
-
-		if( !data.jobs.length )
+		if( !allQueues.length )
 		{
 			$('#jobs tbody').append( $('script[name=no-jobs-row]').text() );
 		} else {
-			for( i = 0; i < data.jobs.length; i++ )
+			if( selectedQueue == null || allQueues.indexOf(selectedQueue) == -1 )
 			{
-				if( data.jobs[i][0] == undefined )
+				selectedQueue	= allQueues[0];
+			}
+			queue	= selectedQueue;
+			$('#queuename').text(queue);
+			$('#queuename').toggleClass('failed', queue == 'failed');
+
+			$('tr').toggleClass('active', false);
+			$('tr.' + queue).toggleClass('active', true);
+
+			if( !data.jobs[queue] )
+			{
+				$('#jobs tbody').append( $('script[name=no-jobs-row]').text() );
+				return;
+			}
+
+			for( i = 0; i < data.jobs[queue].length; i++ )
+			{
+				data.jobs[queue][i]['exc_info_class']	= !data.jobs[queue][i]['exc_info'] ? 'hidden' : '';
+				data.jobs[queue][i]['created_at']		= toRelative(data.jobs[queue][i]['created_at']);
+				data.jobs[queue][i]['state-label']      = 'pending';
+				data.jobs[queue][i]['state-label-class']= 'label-info';
+				if( data.jobs[queue][i]['ended_at'] )
 				{
-					data.jobs[i][0]	= data.jobs[i];
+					data.jobs[queue][i]['ended_at']		= toRelative(data.jobs[queue][i]['ended_at']);
+					data.jobs[queue][i]['state-label']      = 'failed';
+					data.jobs[queue][i]['state-label-class']= 'label-important';
+				} else {
+					data.jobs[queue][i]['requeue-button-additional-class']= 'hidden';
 				}
 
-				for( var j = 0; j < data.jobs[i].length; j++ )
-				{
-					data.jobs[i][j]['exc_info_class']	= !data.jobs[i][j]['exc_info'] ? 'hidden' : '';
-					data.jobs[i][j]['created_at']		= toRelative(data.jobs[i][j]['created_at']);
-                    data.jobs[i][j]['state-label']      = 'pending';
-                    data.jobs[i][j]['state-label-class']= 'label-info';
-					if( data.jobs[i][j]['ended_at'] )
-					{
-						data.jobs[i][j]['ended_at']		= toRelative(data.jobs[i][j]['ended_at']);
-                        data.jobs[i][j]['state-label']      = 'failed';
-                        data.jobs[i][j]['state-label-class']= 'label-important';
-					} else {
-                        data.jobs[i][j]['requeue-button-additional-class']= 'hidden';
-                    }
-
-					$('#jobs tbody').append( parseTemplate( $('script[name=job-row]').text(), data.jobs[i][j]) );
-				}
+				$('#jobs tbody').append( parseTemplate( $('script[name=job-row]').text(), data.jobs[queue][i]) );
 			}
 		}
 
@@ -234,6 +260,36 @@ $(document).ready(function(){
         pollPaused  = false;
     };
 
-	reload();
-    startPolling();
+	if("onhashchange" in window)
+	{
+		window.onhashchange = function () {
+			hashchanged(window.location.hash.substr(1));
+		}
+	} else {
+		var storedHash = window.location.hash;
+		window.setInterval(function () {
+			if (window.location.hash != storedHash) {
+				storedHash = window.location.hash;
+				hashchanged(storedHash.substr(1));
+			}
+		}, 100);
+	}
+
+	hashchanged = function(hash)
+	{
+		if( hash && hash != selectedQueue )
+		{
+			selectedQueue	= hash;
+			reload();
+		}
+	};
+
+	if( window.location.hash )
+	{
+		hashchanged( window.location.hash.substr(1) );
+	} else {
+		reload();
+	}
+
+	startPolling();
 });

@@ -67,7 +67,7 @@ class ApiView(View):
     def queue(self, request, name):
         return Data.queue(name)
 
-    def jobs(self, request, queuename):
+    def jobs(self, request, queuename=None):
         return Data.jobs(queuename)
 
     def all(self, request):
