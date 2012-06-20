@@ -17,7 +17,7 @@ setup(
                 ' Inspired by https://github.com/nvie/rq-dashboard',
     long_description=open('Readme.md').read(),
     zip_safe=False,
-    install_requires=['Django==1.4', 'raven==1.8.1', 'rq', 'psutil==0.4.1'],
+    install_requires=['Django==1.4', 'rq', 'psutil==0.4.1'],
     dependency_links=['https://github.com/nvie/rq/tarball/master#egg=rq'],
     classifiers=[
         'Development Status :: 4 - Beta',
