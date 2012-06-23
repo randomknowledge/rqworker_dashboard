@@ -1,10 +1,13 @@
 import re
 from django.http import HttpResponse
 from django.views.generic.base import View, TemplateView
-from . import enqueue, queueTestNormal, queueTestFail, logger, OPTIONS, RAISE_EXCEPTIONS
 from .data import Data
 from rq.job import requeue_job, cancel_job, Job
-from .utils import JSONSerializer
+from . import RAISE_EXCEPTIONS
+from . import enqueue, OPTIONS
+from . import queueTestNormal, queueTestFail
+from .utils.json import JSONSerializer
+from .utils.log import logger
 
 
 class ApiView(View):

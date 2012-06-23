@@ -1,16 +1,11 @@
-from io import StringIO
 import datetime
+import times
+from io import StringIO
 from django.db.models import Model
 from django.db.models.query import QuerySet
 from django.utils.encoding import smart_unicode
-from django.conf import settings
 from django.utils.simplejson import dumps
-import psutil
-from psutil.error import NoSuchProcess
-import pytz
-from rq.worker import Worker
-import times
-from . import setup_rq_connection, OPTIONS, redis_runs_on_same_machine, logger
+from .time import get_tz
 
 
 class UnableToSerializeError(Exception):
@@ -27,7 +22,7 @@ class JSONSerializer():
     boolean_fields = ['BooleanField', 'NullBooleanField']
     datetime_fields = ['DatetimeField', 'DateField', 'TimeField']
     number_fields = ['IntegerField', 'AutoField', 'DecimalField',
-            'FloatField', 'PositiveSmallIntegerField']
+                     'FloatField', 'PositiveSmallIntegerField']
 
     def serialize(self, obj, **options):
         self.options = options
@@ -180,7 +175,7 @@ class JSONSerializer():
                 # Related to remote object via other field
                 pk = getattr(related, field.rel.field_name)
             d = {
-                    'pk': pk,
+                'pk': pk,
                 }
             if self.use_natural_keys and hasattr(related, 'natural_key'):
                 d.update({'natural_key': related.natural_key()})
@@ -203,7 +198,7 @@ class JSONSerializer():
                 hasRelationships = True
                 pk = relobj._get_pk_val()
                 d = {
-                        'pk': pk,
+                    'pk': pk,
                     }
                 if self.use_natural_keys and hasattr(relobj, 'natural_key'):
                     d.update({'natural_key': relobj.natural_key()})
@@ -241,12 +236,6 @@ def serialize_date(dt):
     return times.format(dt, get_tz())
 
 
-def get_tz(tzstring=None):
-    if not tzstring:
-        tzstring = getattr(settings, 'TIME_ZONE', 'UTC')
-    return pytz.timezone(tzstring)
-
-
 def serialize_job(job):
     try:
         job.refresh()
@@ -273,28 +262,3 @@ def get_job_age(job):
     if job.ended_at:
         return job.ended_at - c
     return datetime.datetime.utcnow() - c
-
-
-def worker_running(worker):
-    _, _, realpid = worker.key.partition('.')
-    try:
-        psutil.Process(int(realpid))
-    except NoSuchProcess:
-        return False
-    else:
-        return True
-
-
-def remove_ghost_workers():
-    if not OPTIONS.get('remove_ghost_workers', False):
-        return
-
-    if not redis_runs_on_same_machine():
-        logger.warning('Cannot remove Ghost Workers, because the configured Redis Server is not running on localhost!')
-        return
-
-    setup_rq_connection()
-
-    for w in Worker.all():
-        if not worker_running(w):
-            w.register_death()

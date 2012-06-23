@@ -2,7 +2,8 @@ from . import setup_rq_connection
 from rq.job import Job
 from rq.queue import Queue
 from rq.worker import Worker
-from .utils import serialize_queues, serialize_job, remove_ghost_workers
+from .utils.json import serialize_queues, serialize_job
+from .utils.proc import remove_ghost_workers
 
 
 class Data(object):

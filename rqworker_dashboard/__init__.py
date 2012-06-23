@@ -1,15 +1,10 @@
-import logging
 from time import sleep
-from django.utils import log
 from redis.client import Redis
 from rq.connections import push_connection, get_current_connection
 from django.conf import settings
 from rq.queue import Queue
+from .utils.log import logger
 
-logger  = logging.getLogger()
-
-if not logger.handlers:
-    logger.addHandler(log.NullHandler())
 
 OPTIONS = getattr(settings, 'RQ_DASHBOARD_SETTINGS', {
     'poll_interval': 10,
