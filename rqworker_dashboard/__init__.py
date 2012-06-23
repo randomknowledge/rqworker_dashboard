@@ -38,7 +38,7 @@ def enqueue(function, *args, **kwargs):
 
 def queueTestNormal( somarg, delay = 10 ):
     sleep(delay)
-    return True
+    return 'yay!'
 
 def queueTestFail( somarg, delay = 10 ):
     sleep(delay)

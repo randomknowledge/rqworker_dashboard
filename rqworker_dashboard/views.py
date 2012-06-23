@@ -45,6 +45,14 @@ class ApiView(View):
                 logger.warning(e)
                 return HttpResponse('Bad Request', status=400)
 
+        """
+        if handler == self.all:
+            return HttpResponse(
+                '{"workers": [{"name": "Zoidberg-Ubuntu.6662", "queues": ["default", "custom"], "pid": 6653, "state": "busy", "stopped": false, "key": "rq:worker:Zoidberg-Ubuntu.6662"}], "jobs": {"default": [{"origin": "default", "created_at": "2012-06-23 11:01:38+0200", "ended_at": null, "description": "rqworker_dashboard.queueTestNormal(\'normal test\')", "age": "0:00:37.116730", "enqueued_at": "2012-06-23 11:01:38+0200", "result": null, "exc_info": null, "id": "b6242363-8260-4b00-8f9d-9562eab0520a"}], "success": [{"origin": "default", "created_at": "2012-06-23 11:01:36+0200", "ended_at": null, "description": "rqworker_dashboard.queueTestNormal(\'normal test\')", "age": "0:00:39.117568", "enqueued_at": "2012-06-23 11:01:36+0200", "result": "S\'yay!\'\\np1\\n.", "exc_info": null, "id": "6dd6eaf3-8a02-44ea-be56-41c3b80183e4"}, {"origin": "default", "created_at": "2012-06-23 11:01:37+0200", "ended_at": null, "description": "rqworker_dashboard.queueTestNormal(\'normal test\')", "age": "0:00:38.118277", "enqueued_at": "2012-06-23 11:01:37+0200", "result": "S\'yay!\'\\np1\\n.", "exc_info": null, "id": "4aa82303-1c8d-4367-860d-7bae7eaa21e9"}, {"origin": "default", "created_at": "2012-06-23 11:01:35+0200", "ended_at": null, "description": "rqworker_dashboard.queueTestNormal(\'normal test\')", "age": "0:00:40.118938", "enqueued_at": "2012-06-23 11:01:35+0200", "result": "S\'yay!\'\\np1\\n.", "exc_info": null, "id": "6d6df238-e345-4522-a5a9-ddc2fc20edfb"}]}, "queues": [{"count": 1, "jobs": ["b6242363-8260-4b00-8f9d-9562eab0520a"], "name": "default"}, {"count": 3, "jobs": ["6dd6eaf3-8a02-44ea-be56-41c3b80183e4", "4aa82303-1c8d-4367-860d-7bae7eaa21e9", "6d6df238-e345-4522-a5a9-ddc2fc20edfb"], "name": "success"}, {"count": 0, "jobs": [], "name": "custom"}]}',
+                mimetype='application/json'
+            )
+        """
+
         jsonSerializer = JSONSerializer()
         return HttpResponse(
                 jsonSerializer.serialize(context, use_natural_keys=True),

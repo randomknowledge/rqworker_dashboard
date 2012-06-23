@@ -120,18 +120,12 @@
                 </tr>
 				<tr>
 					<th>Name</th>
-					<th>Age</th>
+                    <th>Age</th>
+                    <th>Result</th>
 					<th class="narrow">Actions</th>
 				</tr>
 				</thead>
 				<tbody>
-				{% for job in defaultqueue.jobs %}
-				<tr>
-					<td>{{ job.description|default:job }}</td>
-					<td>{{ job.age }}</td>
-					<td></td>
-				</tr>
-				{% endfor %}
 				</tbody>
 			</table>
 
@@ -146,16 +140,19 @@
 						<pre class="exc_info [[exc_info_class]]">[[exc_info]]</pre>
 					</td>
 					<td><span class="creation_date">[[created_at]]</span></td>
+                    <td>
+                        <pre class="result [[result_class]]">[[result]]</pre>
+                    </td>
 					<td class="actions narrow">
 						<a href="#" data-role="requeue-job-btn" class="btn btn-small [[requeue-button-additional-class]]"><i class="icon-retweet"></i> Requeue</a>
-						<a href="#" data-role="cancel-job-btn" class="btn btn-small"><i class="icon-remove"></i> Cancel</a>
+						<a href="#" data-role="cancel-job-btn" class="btn btn-small [[cancel-button-additional-class]]"><i class="icon-remove"></i> Cancel</a>
 					</td>
 				</tr>
 			</script>
 
 			<script name="no-jobs-row" type="text/template">
 				<tr>
-					<td colspan="3">No jobs.</td>
+					<td colspan="4">No jobs.</td>
 				</tr>
 			</script>
 

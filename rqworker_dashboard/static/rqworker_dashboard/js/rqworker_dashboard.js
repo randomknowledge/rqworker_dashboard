@@ -88,6 +88,8 @@ $(document).ready(function(){
                 if( data.queues[i]['name'] == "failed" )
                 {
                     data.queues[i]['badge-class']   = 'badge-important';
+                } else if( data.queues[i]['name'] == "success" ) {
+                    data.queues[i]['badge-class']   = 'badge-success';
                 } else {
                     data.queues[i]['badge-class']   = 'badge-info';
                 }
@@ -105,7 +107,8 @@ $(document).ready(function(){
 			}
 			queue	= selectedQueue;
 			$('#queuename').text(queue);
-			$('#queuename').toggleClass('failed', queue == 'failed');
+            $('#queuename').toggleClass('failed', queue == 'failed');
+            $('#queuename').toggleClass('success', queue == 'success');
 
 			$('tr').toggleClass('active', false);
 			$('tr.' + queue).toggleClass('active', true);
@@ -120,15 +123,17 @@ $(document).ready(function(){
 			{
 				data.jobs[queue][i]['exc_info_class']	= !data.jobs[queue][i]['exc_info'] ? 'hidden' : '';
 				data.jobs[queue][i]['created_at']		= toRelative(data.jobs[queue][i]['created_at']);
-				data.jobs[queue][i]['state-label']      = 'pending';
-				data.jobs[queue][i]['state-label-class']= 'label-info';
+				data.jobs[queue][i]['state-label']      = queue == 'success' ? 'successful': 'pending';
+                data.jobs[queue][i]['state-label-class']= queue == 'success' ? 'label-success': 'label-info';
+                data.jobs[queue][i]['result_class']     = queue == 'success' ? '': 'hidden';
+
 				if( data.jobs[queue][i]['ended_at'] )
 				{
 					data.jobs[queue][i]['ended_at']		= toRelative(data.jobs[queue][i]['ended_at']);
 					data.jobs[queue][i]['state-label']      = 'failed';
 					data.jobs[queue][i]['state-label-class']= 'label-important';
 				} else {
-					data.jobs[queue][i]['requeue-button-additional-class']= 'hidden';
+                    data.jobs[queue][i]['requeue-button-additional-class']= 'hidden';
 				}
 
 				$('#jobs tbody').append( parseTemplate( $('script[name=job-row]').text(), data.jobs[queue][i]) );

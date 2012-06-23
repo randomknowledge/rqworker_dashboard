@@ -6,7 +6,7 @@ setup(
     name="rqworker_dashboard",
     author="Florian Finke",
     author_email="flo@randomknowledge.org",
-    version='0.1.3',
+    version='0.2.0',
     packages=['rqworker_dashboard'],
     package_data=finddata.find_package_data(),
     url='https://github.com/randomknowledge/rqworker_dashboard',

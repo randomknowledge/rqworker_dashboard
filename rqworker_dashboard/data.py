@@ -1,4 +1,4 @@
-from . import setup_rq_connection
+from . import setup_rq_connection, get_current_connection
 from rq.job import Job
 from rq.queue import Queue
 from rq.worker import Worker
@@ -27,13 +27,19 @@ class Data(object):
         def compact_queue(q):
             q.compact()
             return q
-        return serialize_queues(sorted(map(compact_queue, Queue.all())))
+        queues = serialize_queues(sorted(map(compact_queue, Queue.all())))
+        queues.append(cls.queue('success'))
+        return queues
 
     @classmethod
     def queue(cls, name):
         cls.connect()
         q = Queue(name)
-        q.compact()
+        if name == 'success':
+            jobs = cls.successful_jobs()
+            return {'name': name, 'count': len(jobs), 'jobs': [j.get('id') for j in jobs]}
+        else:
+            q.compact()
         return {'name': q.name, 'count': q.count, 'jobs': q.job_ids}
 
     @classmethod
@@ -41,9 +47,11 @@ class Data(object):
         cls.connect()
         if queuename:
             queue = Queue(queuename)
-            queue.compact()
-            jobs = [serialize_job(Job(id)) for id in queue.job_ids]
-            return jobs
+            if queuename != 'success':
+                queue.compact()
+                return [serialize_job(Job(id)) for id in queue.job_ids]
+            else:
+                return cls.successful_jobs()
         else:
             j = {}
             for queue in cls.queues():
@@ -60,6 +68,21 @@ class Data(object):
         except Exception:
             pass
         return serialize_job(job)
+
+    @classmethod
+    def successful_jobs(cls):
+        cls.connect()
+        c = get_current_connection()
+        jobs = c.keys('rq:job:*')
+        sjobs = []
+        for job in jobs:
+            j = c.hgetall(job)
+            if j.get('result'):
+                key = job.replace('rq:job:','')
+                sjobs.append(serialize_job(Job.fetch(key)))
+
+        return sjobs
+
 
     @classmethod
     def all(cls):
