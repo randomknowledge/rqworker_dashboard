@@ -1,4 +1,6 @@
 import datetime
+from rq.exceptions import UnpickleError
+from rq.job import unpickle
 import times
 from io import StringIO
 from django.db.models import Model
@@ -242,6 +244,11 @@ def serialize_job(job):
     except Exception:
         pass
 
+    try:
+        result = unpickle(job._result)
+    except UnpickleError:
+        result = job._result
+
     return dict(
         id=job.id,
         created_at=serialize_date(job.created_at),
@@ -249,7 +256,7 @@ def serialize_job(job):
         ended_at=serialize_date(job.ended_at),
         age=str(get_job_age(job)),
         origin=job.origin,
-        result=job._result,
+        result=result,
         exc_info=job.exc_info,
         description=job.description)
 
