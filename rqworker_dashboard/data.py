@@ -77,7 +77,7 @@ class Data(object):
         sjobs = []
         for job in jobs:
             j = c.hgetall(job)
-            if j.get('result'):
+            if j.get('result') is not None:
                 key = job.replace('rq:job:','')
                 sjobs.append(serialize_job(Job.fetch(key)))
 
